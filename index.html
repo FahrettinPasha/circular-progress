@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayarlanabilir Çembersel İlerleme Çubuğu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            gap: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* İki sütunlu düzen */
+            gap: 20px;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            color: #34495e;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .control-group input[type="range"],
+        .control-group input[type="number"],
+        .control-group input[type="color"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .control-group input[type="range"]:focus,
+        .control-group input[type="number"]:focus,
+        .control-group input[type="color"]:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        input[type="color"] {
+            height: 40px; /* Renk seçici için daha iyi bir yükseklik */
+            padding: 2px;
+        }
+
+        /* Responsive ayarlar */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .container {
+                padding: 20px;
+            }
+            .controls {
+                grid-template-columns: 1fr; /* Küçük ekranlarda tek sütun */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Ayarlanabilir Çembersel İlerleme Çubuğu</h1>
+
+    <div class="container">
+        <!-- Ayarlanabilir İlerleme Çubuğu -->
+        <circular-progress id="myProgressBar" min="0" max="100" value="50" size="200" stroke-width="15" color="#3498db" background-color="#ecf0f1"></circular-progress>
+
+        <div class="controls">
+            <!-- Değer Ayarı -->
+            <div class="control-group">
+                <label for="valueInput">Değer (<span id="currentValueDisplay">50</span>)</label>
+                <input type="range" id="valueInput" min="0" max="100" value="50">
+            </div>
+
+            <!-- Min Değer Ayarı -->
+            <div class="control-group">
+                <label for="minInput">Minimum Değer</label>
+                <input type="number" id="minInput" value="0">
+            </div>
+
+            <!-- Max Değer Ayarı -->
+            <div class="control-group">
+                <label for="maxInput">Maksimum Değer</label>
+                <input type="number" id="maxInput" value="100">
+            </div>
+
+            <!-- Boyut Ayarı -->
+            <div class="control-group">
+                <label for="sizeInput">Boyut (px)</label>
+                <input type="number" id="sizeInput" value="200" min="50" max="500">
+            </div>
+
+            <!-- Çizgi Kalınlığı Ayarı -->
+            <div class="control-group">
+                <label for="strokeWidthInput">Çizgi Kalınlığı (px)</label>
+                <input type="number" id="strokeWidthInput" value="15" min="1" max="50">
+            </div>
+
+            <!-- İlerleme Rengi Ayarı -->
+            <div class="control-group">
+                <label for="colorInput">İlerleme Rengi</label>
+                <input type="color" id="colorInput" value="#3498db">
+            </div>
+
+            <!-- Arka Plan Rengi Ayarı -->
+            <div class="control-group">
+                <label for="bgColorInput">Arka Plan Rengi</label>
+                <input type="color" id="bgColorInput" value="#ecf0f1">
+            </div>
+        </div>
+    </div>
+
+    <script src="circular-progress.js"></script>
+    <script>
+        // DOM yüklendiğinde çalışacak kod
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBar = document.getElementById('myProgressBar');
+            const valueInput = document.getElementById('valueInput');
+            const currentValueDisplay = document.getElementById('currentValueDisplay');
+            const minInput = document.getElementById('minInput');
+            const maxInput = document.getElementById('maxInput');
+            const sizeInput = document.getElementById('sizeInput');
+            const strokeWidthInput = document.getElementById('strokeWidthInput');
+            const colorInput = document.getElementById('colorInput');
+            const bgColorInput = document.getElementById('bgColorInput');
+
+            // Başlangıç değerlerini inputlara yansıt
+            valueInput.value = progressBar.getAttribute('value');
+            currentValueDisplay.textContent = valueInput.value;
+            minInput.value = progressBar.getAttribute('min');
+            maxInput.value = progressBar.getAttribute('max');
+            sizeInput.value = progressBar.getAttribute('size');
+            strokeWidthInput.value = progressBar.getAttribute('stroke-width');
+            colorInput.value = progressBar.getAttribute('color');
+            bgColorInput.value = progressBar.getAttribute('background-color');
+
+            // Input değişikliklerini dinle ve progress bar'ı güncelle
+            valueInput.addEventListener('input', (e) => {
+                const newValue = e.target.value;
+                progressBar.setAttribute('value', newValue);
+                currentValueDisplay.textContent = newValue;
+            });
+
+            minInput.addEventListener('input', (e) => {
+                const newMin = e.target.value;
+                progressBar.setAttribute('min', newMin);
+                // Min/Max değiştiğinde value inputunun aralığını da güncelle
+                valueInput.min = newMin;
+                // Eğer mevcut değer yeni min'den küçükse, değeri min'e eşitle
+                if (parseFloat(valueInput.value) < parseFloat(newMin)) {
+                    valueInput.value = newMin;
+                    progressBar.setAttribute('value', newMin);
+                    currentValueDisplay.textContent = newMin;
+                }
+            });
+
+            maxInput.addEventListener('input', (e) => {
+                const newMax = e.target.value;
+                progressBar.setAttribute('max', newMax);
+                // Min/Max değiştiğinde value inputunun aralığını da güncelle
+                valueInput.max = newMax;
+                 // Eğer mevcut değer yeni max'tan büyükse, değeri max'a eşitle
+                if (parseFloat(valueInput.value) > parseFloat(newMax)) {
+                    valueInput.value = newMax;
+                    progressBar.setAttribute('value', newMax);
+                    currentValueDisplay.textContent = newMax;
+                }
+            });
+
+            sizeInput.addEventListener('input', (e) => {
+                progressBar.setAttribute('size', e.target.value);
+            });
+
+            strokeWidthInput.addEventListener('input', (e) => {
+                progressBar.setAttribute('stroke-width', e.target.value);
+            });
+
+            colorInput.addEventListener('input', (e) => {
+                progressBar.setAttribute('color', e.target.value);
+            });
+
+            bgColorInput.addEventListener('input', (e) => {
+                progressBar.setAttribute('background-color', e.target.value);
+            });
+        });
+    </script>
+</body>
+</html>
